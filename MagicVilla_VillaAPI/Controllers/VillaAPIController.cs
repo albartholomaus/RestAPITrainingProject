@@ -28,12 +28,30 @@ namespace MagicVilla_VillaAPI.Controllers
                 return BadRequest();
             }
 
-            var Villa = VillaStore.villaList.FirstOrDefault(u => u.id == id);
+            var Villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
             if (Villa==null)
             {
                 return NotFound();
             }
             return Ok(Villa);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<VillaDTO> CreateVilla([FromBody]VillaDTO villaDTO) {
+            if (villaDTO==null)
+            {
+                return BadRequest(villaDTO);
+            }
+            if (villaDTO.Id>0)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            villaDTO.Id = VillaStore.villaList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
+            VillaStore.villaList.Add(villaDTO);
+            return StatusCode(StatusCodes.Status200OK);
         }
     }
 }
